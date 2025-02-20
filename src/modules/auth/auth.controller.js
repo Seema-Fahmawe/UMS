@@ -23,6 +23,6 @@ export const login = async (req, res) => {
   if (!isMatch) {
     return res.status(401).json({ message: "invalid password" });
   }
-  const token = jwt.sign({ id: user.id, userName: user.userName }, "Seema123");
+  const token = jwt.sign({ id: user.id, userName: user.userName ,role:user.role}, "Seema123");
   return res.status(201).json({ message: "success", token });
 };

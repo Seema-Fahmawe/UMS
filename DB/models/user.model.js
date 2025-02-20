@@ -30,6 +30,11 @@ const userModel = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    role:{
+      type:DataTypes.ENUM('User','Admin'),
+      defaultValue:'User',
+      allowNull:false
+    }
   },
   {
     timestamps: true,
