@@ -1,36 +1,32 @@
 import userModel from "../../../DB/models/user.model.js";
-import jwt from "jsonwebtoken";
+import AppError from "../../utils/AppError.js";
+import asyncHandler from "../../utils/catchError.js";
+import cloudinary from "../../utils/cloudinary.js";
 
-export const getAllUsers = async (req, res) => {
-  const { token } = req.headers;
-  if (!token) {
-    return res.status(401).json({ message: "unauthorized" });
-  }
-  const decoded = jwt.verify(token, "Seema123");
-  if (decoded?.role != "Admin") {
-    return res.status(403).json({ message: "not authorized" });
-  }
+export const getAllUsers = asyncHandler(async (req, res, next) => {
   const users = await userModel.findAll();
   if (users.length === 0) {
-    return res.status(404).json({ message: "No users found" });
+    return next(new AppError(`no users found `, 401));
   }
-  return res.json({ message: "success", users });
-};
+  return res.status(200).json({ message: "success", users });
+});
 
-export const deleteUser = async (req, res) => {
+export const deleteUser = asyncHandler(async (req, res, next) => {
   const { userId } = req.params;
-  const { token } = req.headers;
-  if (!token) {
-    return res.status(401).json({ message: "unauthorized" });
-  }
-  const decoded = jwt.verify(token, "Seema123");
-  if (decoded?.role != "Admin") {
-    return res.status(403).json({ message: "not authorized" });
-  }
+
   const user = await userModel.findByPk(userId);
   if (user == null) {
-    return res.status(404).json({ message: "User not found" });
+    return next(new AppError(`User does not exist`, 404));
   }
   await user.destroy();
-  return res.json({ message: "success" });
-};
+  return res.status(200).json({ message: "success" });
+});
+
+export const profilePic = asyncHandler(async (req, res, next) => {
+  const { public_id, secure_url } = await cloudinary.uploader.upload(
+    req.file.path,
+    { folder: `UMS` }
+  );
+  
+  return res.status(200).json({ message: "success" });
+});
