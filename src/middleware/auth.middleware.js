@@ -12,6 +12,7 @@ const auth = () => {
     if (decoded?.role != "Admin") {
       return next(new AppError(`not authorized`, 403));
     }
+    req.id=decoded.id;
     next();
   });
 };
